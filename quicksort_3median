@@ -1,0 +1,115 @@
+#include<iostream>
+#include<fstream>
+#include<time.h>
+using namespace std;
+
+
+//Compute the number of comparisons(as in Problem 1), using the "median-of-three" pivot rule.
+//[The primary motivation behind this rule is to do a little bit of extra work to get much better performance on input arrays
+//that are nearly sorted or reverse sorted.]In more detail, you should choose the pivot as follows.
+//Consider the first, middle, and final elements of the given array.
+//(If the array has odd length it should be clear what the "middle" element is;
+//for an array with even length 2k, use the kth element as the "middle" element.
+//So for the array 4 5 6 7, the "middle" element is the second one---- 5 and not 6!)
+//Identify which of these three elements is the median(i.e., the one whose value is in between the other two), and use this as your pivot.
+//As discussed in the first and second parts of this programming assignment, be sure to implement Partition exactly
+//as described in the video lectures(including exchanging the pivot element with the first element just before the main Partition subroutine).
+//
+//EXAMPLE: For the input array 8 2 4 5 7 1 you would consider the first(8), middle(4), and last(1) elements;
+//since 4 is the median of the set{ 1, 4, 8 }, you would use 4 as your pivot element.
+
+
+
+
+int find_median(int a, int b, int c){
+	int max1 = ((a >= b) ? a : b);
+	int max2 = ((c >=b) ? c : b);
+	if ((max1 != max2))
+		return ((max1 <= max2) ? max1 : max2);
+	else
+		return ((a >= c) ? a: c);
+}//function to find median of any 3 no repeated integers
+
+int partition(int a[], int p, int r){
+	int median = find_median(a[p],a[(r+p)/2],a[r]);
+
+	if (median == a[(r + p) / 2])
+	{
+		swap(a[p], a[(r + p) / 2]);
+	}
+	else
+	{
+		if (median == a[r])
+			swap(a[p], a[r]);
+	}//as required,use'3-median' method to choose the pivot
+
+	
+	int x = a[p];
+
+	int i = p;
+	for (int j = p + 1; j <= r; j++){
+		if (a[j] < x){
+			++i;
+			swap(a[i], a[j]);
+			
+		}
+	}
+	swap(a[p], a[i]);
+	return i;//i是pivot的index
+}
+
+
+int k;//global varible,used to record the # of comparisons
+int quicksort(int a[], int p, int r, int m){
+	k = m;
+	if (p <r){
+		k = k + r - p;
+		int q = partition(a, p, r);
+
+		quicksort(a, p, q - 1, k);
+		quicksort(a, q + 1, r, k);//left and right recursions
+	}
+	return k;
+}
+
+void mprint(int a[], int size){
+	cout << "The sorted array is: " << endl;
+	for (int i = 0; i<size; i++){
+		cout << a[i] << " ";
+	}
+
+}
+
+void main(){
+	fstream myfile;
+	myfile.open("10.txt", ios::in);
+	clock_t start, end;
+	start = clock();
+	int a1[10] = {};//initialize an empty array
+
+	if (myfile.is_open())
+	{
+		cout << "File Opened successfully!!!" << endl;
+		int size = 0;
+		while (!myfile.eof()){
+			myfile >> a1[size++];
+		}//push the integers into the input array;
+
+	}
+	else
+		cout << "Well, the file is not open" << endl;
+
+
+	int size = sizeof(a1) / sizeof(a1[0]);
+	
+
+	int count;
+	count = quicksort(a1, 0, size - 1, 0);
+	cout << "the # of comparisons are:" << count << endl << endl;
+	//mprint(a1, size);
+
+	end = clock();
+	cout << "Run time: " << (double)(end - start) / CLOCKS_PER_SEC << "S" << endl;
+
+	system("pause");
+}
